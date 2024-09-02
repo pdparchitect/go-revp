@@ -45,10 +45,8 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
+    steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
 
@@ -63,12 +61,12 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: revp-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
-          asset_name: revp-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
-          asset_content_type: application/octet-stream
+      - name: Upload Release Assets
+        run: |
+          for filename in revp-*; do
+            echo "Uploading $filename"
+            curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                 -H "Content-Type: application/octet-stream" \
+                 -T ${filename} \
+                 "${{ steps.create_release.outputs.upload_url }}?name=$(basename ${filename})"
+          done
