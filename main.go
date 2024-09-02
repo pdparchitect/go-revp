@@ -29,6 +29,15 @@ func main() {
     }
 
     proxy := httputil.NewSingleHostReverseProxy(targetURL)
+
+    originalDirector := proxy.Director
+    proxy.Director = func(req *http.Request) {
+        originalDirector(req)
+        req.Host = targetURL.Host
+        req.URL.Host = targetURL.Host
+        req.URL.Scheme = targetURL.Scheme
+    }
+
     http.Handle("/", proxy)
 
     log.Printf("Starting proxy server on port %s forwarding to %s", port, target)
