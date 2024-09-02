@@ -33,11 +33,11 @@ jobs:
 
     - name: Build binary
       run: |
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o proxy-${{ matrix.os }}-${{ matrix.arch }}${{ eq(matrix.os, 'windows') && '.exe' || '' }}
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o proxy-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
       working-directory: ${{ github.workspace }}
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v3
       with:
         name: proxy-${{ matrix.os }}-${{ matrix.arch }}
-        path: proxy-${{ matrix.os }}-${{ matrix.arch }}${{ if eq(matrix.os, 'windows') && '.exe' || '' }}
+        path: proxy-${{ matrix.os }}-${{ matrix.arch }}${{ if matrix.os == 'windows' && '.exe' || '' }}
